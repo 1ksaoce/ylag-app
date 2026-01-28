@@ -1,0 +1,97 @@
+/* --- CSS NEUBRUTALISM --- */
+:root { --bg-color: #F8F9FA; --card-bg: #FFFFFF; --primary-yellow: #FFD54F; --border: #000; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); padding: 20px; margin: 0; color: #000; -webkit-tap-highlight-color: transparent; }
+.app-container { max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
+
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.challenge-info { background: #000; color: #fff; padding: 15px; border-radius: 12px; width: 100%; text-align: center; margin-bottom: 20px; box-shadow: 4px 4px 0px rgba(0,0,0,0.2); }
+.progress-bar { width: 100%; height: 10px; background: #333; border-radius: 5px; margin-top: 10px; overflow: hidden; border: 1px solid #555; }
+.progress-fill { height: 100%; background: var(--primary-yellow); width: 0%; transition: width 0.5s ease-out; }
+
+.card { background: var(--card-bg); border: 2px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 4px 4px 0px rgba(0,0,0,0.1); }
+.section-title { font-size: 14px; font-weight: bold; color: #666; margin-bottom: 15px; text-transform: uppercase; }
+
+/* Tooltip */
+.tooltip-container { position: relative; }
+.tooltip-text {
+    visibility: hidden; opacity: 0; width: max-content; background-color: #000; color: #fff; text-align: center; border-radius: 6px; padding: 6px 10px; 
+    position: absolute; z-index: 99999; bottom: 125%; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: bold; pointer-events: none; 
+    transition: opacity 0.15s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid #444;
+}
+.tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: black transparent transparent transparent; }
+.tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; bottom: 115%; }
+
+/* Habit Grid */
+.habit-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.habit-btn { 
+    aspect-ratio: 1/1; border: 2px solid var(--border); border-radius: 12px; 
+    display: flex; justify-content: center; align-items: center; font-size: 28px; 
+    cursor: pointer; background: white; transition: 0.1s; position: relative; user-select: none; 
+}
+.habit-btn:active { transform: scale(0.95); }
+.habit-btn.active[data-color="0"] { background: #FFD54F; } .habit-btn.active[data-color="1"] { background: #FF8A80; } .habit-btn.active[data-color="2"] { background: #81C784; } .habit-btn.active[data-color="3"] { background: #4FC3F7; } .habit-btn.active[data-color="4"] { background: #BA68C8; } .habit-btn.active[data-color="5"] { background: #FFB74D; }
+
+/* Tasks */
+.task-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.task-btn { background: #fff; border: 2px solid var(--border); border-radius: 15px; padding: 12px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+.task-btn.done { background: var(--primary-yellow); text-decoration: line-through; opacity: 0.8; }
+.del-icon { color: red; font-weight: bold; padding: 0 10px; cursor: pointer; font-size: 16px; }
+
+/* Layout Split */
+.split { display: flex; gap: 15px; margin-top: 20px; } 
+.col { flex: 1; display: flex; flex-direction: column; }
+
+/* Mood */
+.mood-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; height: 100%; } 
+.mood-btn { aspect-ratio: 1/1; border: 2px solid var(--border); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 32px; background: white; cursor: pointer; }
+.mood-btn.selected { background: #FFEB3B; transform: scale(1.05); border-width: 3px; }
+
+/* Integrated Journal & Photo Box */
+.integrated-box { border: 2px solid #000; border-radius: 12px; padding: 10px; background: #fff; display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 220px; box-sizing: border-box; }
+.journal-area-clean { border: none; outline: none; width: 100%; flex-grow: 1; box-sizing: border-box; font-family: inherit; resize: none; font-size: 14px; line-height: 1.5; }
+.save-status { font-size: 10px; color: #888; text-align: right; font-style: italic; margin-top: -5px; margin-bottom: 5px;}
+
+.photo-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+.photo-thumbnail-container { position: relative; width: 60px; height: 60px; }
+.photo-thumbnail { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #ccc; }
+.remove-photo-small { position: absolute; top: -5px; right: -5px; background: red; color: white; width: 16px; height: 16px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 10px; }
+
+.add-photo-square { width: 60px; height: 60px; border: 2px dashed #ccc; border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #999; transition: 0.2s; font-size: 20px; }
+.add-photo-square:hover { background: #f0f0f0; border-color: #999; }
+
+/* Modal History & Design Fixes */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20000; justify-content: center; align-items: center; }
+.modal-content { background: #F8F9FA; width: 90%; max-width: 400px; max-height: 80%; border-radius: 20px; border: 2px solid #000; padding: 20px; overflow-y: auto; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+.close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; font-weight: bold; cursor: pointer; color: #666; }
+
+.history-item { background: white; border: 2px solid #000; padding: 15px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; }
+.history-item:active { background: #eee; }
+.history-date { font-weight: bold; font-size: 14px; }
+.history-stats { font-size: 12px; color: #666; }
+
+/* History Detail Sections */
+.history-section-title { font-size: 12px; font-weight: bold; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.history-section-block { margin-bottom: 25px; }
+
+.history-habits-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+.history-habit-readonly { aspect-ratio: 1/1; border: 1px solid #000; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 16px; background: #eee; opacity: 0.5; }
+.history-habit-readonly.done { opacity: 1; border-width: 2px; }
+.history-habit-readonly.done[data-color="0"] { background: #FFD54F; } .history-habit-readonly.done[data-color="1"] { background: #FF8A80; } .history-habit-readonly.done[data-color="2"] { background: #81C784; } .history-habit-readonly.done[data-color="3"] { background: #4FC3F7; } .history-habit-readonly.done[data-color="4"] { background: #BA68C8; } .history-habit-readonly.done[data-color="5"] { background: #FFB74D; }
+
+.history-mood-container { text-align: center; border: 2px solid #000; padding: 15px; border-radius: 12px; background: white; }
+.history-mood-emoji { font-size: 40px; line-height: 1.2; margin-bottom: 5px; }
+.history-mood-label { font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; }
+
+/* History Tasks */
+.history-task-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; }
+.history-task-icon { font-size: 14px; }
+.history-task-text { color: #333; }
+.history-task-text.done { text-decoration: line-through; opacity: 0.7; }
+
+.lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 30000; justify-content: center; align-items: center; }
+.lightbox img { max-width: 95%; max-height: 95%; border: 2px solid #fff; border-radius: 5px; object-fit: contain; }
+.lightbox-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; cursor: pointer; font-weight: bold; width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+
+.test-btn { background: #ffcccc; color: red; border: 2px solid red; border-radius: 10px; padding: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; display: block; }
+#loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 9999; font-weight: bold; flex-direction: column; gap: 10px;}
+.history-btn { background: #fff; border: 2px solid #000; border-radius: 10px; padding: 5px 10px; font-size: 12px; font-weight: bold; cursor: pointer; }
