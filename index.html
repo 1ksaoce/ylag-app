@@ -8,6 +8,11 @@
 </head>
 <body>
 
+<nav style="background:#000; color:#fff; padding:10px 20px; display:flex; justify-content:center; gap:20px;">
+    <a href="index.html" style="color:#fff; text-decoration:none; font-weight:bold;">🏠 Home</a>
+    <a href="about.html" style="color:#fff; text-decoration:none; font-weight:bold;">ℹ️ About</a>
+</nav>
+
 <div id="loading">
     <div>⏳</div>
     <div>Đang tải dữ liệu...</div>
@@ -42,7 +47,7 @@
             <div class="progress-fill" id="progressFill"></div>
         </div>
         <div id="startBtnArea" style="margin-top:15px; display:none; border-top: 1px solid #333; padding-top: 10px;">
-            <button onclick="startChallenge()" style="background:var(--primary-yellow); color:black; border:none; padding:8px 15px; border-radius:6px; font-weight:bold; cursor:pointer; width: 100%;">🚀 Bắt đầu từ ngày mai</button>
+            <button onclick="startChallenge()" style="background:var(--primary-yellow); color:black; border:none; padding:8px 15px; border-radius:6px; font-weight:bold; cursor:pointer; width: 100%;">🚀 Bắt đầu NGAY HÔM NAY</button>
         </div>
     </div>
 
@@ -68,16 +73,19 @@
                 <div class="section-title">Nhật Ký & Ảnh</div>
                 <div class="integrated-box">
                     <textarea id="journalInput" class="journal-area-clean" placeholder="Hôm nay bạn thế nào..." oninput="autoSaveJournal()"></textarea>
-                    <div id="saveStatus" class="save-status"></div>
-                    <div class="photo-grid" id="photoGrid"></div>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                        <div class="photo-grid" id="photoGrid"></div>
+                        <div id="saveStatus" class="save-status"></div>
+                    </div>
                 </div>
                 <input type="file" id="imgInput" style="display:none;" accept="image/*" onchange="processImage(this)">
             </div>
         </div>
     </div>
     
-    <button class="test-btn" onclick="simulateNewDay()">⏩ Giả lập Qua Ngày Mới (Test Lịch Sử)</button>
-    <div style="text-align:center; font-size:10px; color:gray; margin-top:5px;">(Lưu dữ liệu hiện tại vào Lịch sử và Reset về 0)</div>
+    <button class="test-btn" onclick="simulateNewDay()">⏩ Giả lập Qua Ngày Mới (Test)</button>
+    <div style="text-align:center; font-size:10px; color:gray; margin-top:5px;">(Bấm để tăng bộ đếm ngày và lưu Lịch sử)</div>
 </div>
 
 <div id="historyModal" class="modal">
@@ -122,6 +130,7 @@
     <div class="lightbox-close">×</div>
     <img id="lightboxImg" src="" onclick="event.stopPropagation()">
 </div>
+<button onclick="hardReset()" style="background:none; border:none; text-decoration:underline; color:red; width:100%; margin-top:10px; cursor:pointer; font-size:11px;">⚠️ Xóa toàn bộ dữ liệu (Reset)</button>
 
 <script type="module" src="app.js"></script>
 

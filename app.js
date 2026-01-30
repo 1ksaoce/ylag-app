@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// --- CẤU HÌNH FIREBASE ---
+// --- CẤU HÌNH ---
 const firebaseConfig = {
     apiKey: "AIzaSyA59ex81_KmXzpJ5lCeVN0bEC_El3xREy8",
     authDomain: "ylag-ghost.firebaseapp.com",
@@ -14,9 +14,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const DOC_ID = "user_profile_final_v14_tasks_history"; 
+const DOC_ID = "user_profile_v15_final_split_files"; 
 
-// --- DỮ LIỆU ---
 let appData = {
     startDate: null, lastActive: new Date().toDateString(), streak: 0,
     habits: [ 
@@ -31,7 +30,6 @@ let appData = {
 
 const docRef = doc(db, "ylag_db", DOC_ID);
 
-// --- KẾT NỐI FIREBASE ---
 onSnapshot(docRef, (snap) => {
     document.getElementById('loading').style.display = 'none';
     if (snap.exists()) {
@@ -39,10 +37,6 @@ onSnapshot(docRef, (snap) => {
         if(!fetched.history) fetched.history = {}; 
         if(!fetched.journalImages) fetched.journalImages = [];
         appData = {...appData, ...fetched};
-        
-        const defaultNames = ["Dậy sớm", "Sức khỏe", "Thể dục", "Sáng tạo", "Đọc sách", "Viết lách"];
-        appData.habits.forEach((h, i) => { if(!h.name) h.name = defaultNames[i]; });
-        
         checkDay();
         renderUI();
     } else {
@@ -53,7 +47,7 @@ onSnapshot(docRef, (snap) => {
 
 async function saveData() { await setDoc(docRef, appData); }
 
-// --- LOGIC NGÀY THÁNG ---
+// --- LOGIC NGÀY THÁNG & LỊCH SỬ ---
 function checkDay() {
     const today = new Date().toDateString();
     if (appData.lastActive !== today) {
@@ -69,14 +63,15 @@ function archiveToday(dateKey) {
         const start = new Date(appData.startDate); start.setHours(0,0,0,0);
         const d = new Date(dateKey); d.setHours(0,0,0,0);
         const diff = Math.ceil((d - start) / (1000 * 60 * 60 * 24));
-        if(diff >= 0) dayLabel = `Ngày ${diff}`;
+        if(diff >= 0) dayLabel = `Ngày ${diff + 1}`;
     }
     if (!appData.history) appData.history = {};
     
+    // LƯU CẢ TASKS VÀO LỊCH SỬ
     appData.history[dateKey] = {
         label: dayLabel, dateStr: dateKey,
         habits: JSON.parse(JSON.stringify(appData.habits)),
-        tasks: JSON.parse(JSON.stringify(appData.tasks)),
+        tasks: JSON.parse(JSON.stringify(appData.tasks)), 
         mood: appData.mood, journal: appData.journal,
         images: JSON.parse(JSON.stringify(appData.journalImages))
     };
@@ -86,15 +81,12 @@ function resetForNewDay(newDateStr) {
     appData.habits.forEach(h => h.done = false);
     appData.tasks.forEach(t => t.done = false);
     appData.mood = null; appData.journal = ""; appData.journalImages = [];
-    const last = new Date(appData.lastActive); const curr = new Date(newDateStr);
-    const diffDays = Math.floor((curr - last) / (1000 * 60 * 60 * 24));
-    if (diffDays > 1) appData.streak = 0;
     appData.lastActive = newDateStr;
 }
 
-// --- VẼ GIAO DIỆN ---
+// --- RENDER UI ---
 function renderUI() {
-    // 1. Progress Info
+    // 1. Day Counter
     if (!appData.startDate) {
         document.getElementById('dayCounter').innerText = "---"; document.getElementById('percentDisplay').innerText = "0%";
         document.getElementById('progressFill').style.width = "0%"; document.getElementById('startBtnArea').style.display = "block";
@@ -102,8 +94,10 @@ function renderUI() {
         document.getElementById('startBtnArea').style.display = "none";
         const start = new Date(appData.startDate); const now = new Date();
         start.setHours(0,0,0,0); now.setHours(0,0,0,0);
-        const diffTime = now - start; let dayCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        if (dayCount < 1) dayCount = 0; if (dayCount > 90) dayCount = 90;
+        const diffTime = now - start; 
+        let dayCount = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        if (dayCount < 1) dayCount = 1; if (dayCount > 90) dayCount = 90;
+        
         document.getElementById('dayCounter').innerText = `Ngày ${dayCount} / 90`;
         let percent = (dayCount / 90) * 100;
         document.getElementById('progressFill').style.width = `${percent}%`;
@@ -118,7 +112,7 @@ function renderUI() {
         const div = document.createElement('div');
         div.className = `habit-btn tooltip-container ${h.done ? 'active' : ''}`;
         div.setAttribute('data-color', i);
-        div.setAttribute('onclick', `toggleHabit(${i})`); // Gọi Global Function
+        div.setAttribute('onclick', `toggleHabit(${i})`);
         div.innerHTML = `${h.icon}<div class="tooltip-text">${h.name}</div>`;
         hC.appendChild(div);
     });
@@ -139,12 +133,12 @@ function renderUI() {
     ["😀","🙂","😐","😔","😡","😨"].forEach((e, i) => {
         const div = document.createElement('div');
         div.className = `mood-btn tooltip-container ${appData.mood === i ? 'selected' : ''}`;
-        div.setAttribute('onclick', `selectMood(${i})`); // Gọi Global Function
+        div.setAttribute('onclick', `selectMood(${i})`);
         div.innerHTML = `${e}<div class="tooltip-text">${moodNames[i]}</div>`;
         mC.appendChild(div);
     });
 
-    // 5. Journal & Photos
+    // 5. Journal & Photos (Integrated)
     const journalBox = document.getElementById('journalInput');
     if (document.activeElement !== journalBox) { journalBox.value = appData.journal; }
 
@@ -166,9 +160,7 @@ function renderUI() {
     }
 }
 
-// --- GLOBAL FUNCTIONS (GẮN VÀO WINDOW) ---
-// Bắt buộc phải gắn vào window để HTML gọi được khi dùng type="module"
-
+// --- GLOBAL FUNCTIONS ---
 window.toggleHabit = (index) => { appData.habits[index].done = !appData.habits[index].done; saveData(); renderUI(); };
 window.selectMood = (index) => { appData.mood = index; saveData(); renderUI(); };
 
@@ -176,22 +168,38 @@ let saveTimeout;
 window.autoSaveJournal = () => {
     const status = document.getElementById('saveStatus');
     appData.journal = document.getElementById('journalInput').value;
-    status.innerText = "Đang nhập..."; status.style.color = "#999";
+    status.innerText = "Đang lưu..."; status.style.color = "#999";
     if (saveTimeout) clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(async () => { await saveData(); status.innerText = "Đã lưu tự động ✓"; status.style.color = "green"; setTimeout(() => { status.innerText = ""; }, 2000); }, 1500);
+    saveTimeout = setTimeout(async () => { await saveData(); status.innerText = "Đã lưu ✓"; status.style.color = "green"; setTimeout(() => { status.innerText = ""; }, 2000); }, 1500);
 }
 
 window.simulateNewDay = () => {
-    if(confirm("Dữ liệu hiện tại sẽ lưu vào Lịch Sử và Reset. Tiếp tục?")) {
+    if(confirm("Xác nhận: Lưu dữ liệu hôm nay vào Lịch sử và chuyển sang ngày mai?")) {
         const fakeDateKey = new Date().toLocaleString('vi-VN'); 
-        archiveToday(fakeDateKey + " (Test)");
+        archiveToday(fakeDateKey + " (Simulated)");
+        
+        // Mẹo: Lùi ngày bắt đầu để tăng bộ đếm
+        if (appData.startDate) {
+            const s = new Date(appData.startDate);
+            s.setDate(s.getDate() - 1);
+            appData.startDate = s.toISOString();
+        }
         resetForNewDay(new Date().toDateString());
         saveData(); renderUI();
-        alert("Đã qua ngày mới! Kiểm tra Lịch sử ngay.");
+        alert("Đã qua ngày mới! Kiểm tra Lịch sử và Bộ đếm ngày.");
     }
 }
 
-// History
+window.startChallenge = () => { 
+    if(confirm("Bắt đầu thử thách ngay bây giờ?")) { 
+        const now = new Date(); now.setHours(0,0,0,0);
+        appData.startDate = now.toISOString(); 
+        appData.streak = 1; 
+        saveData(); renderUI();
+    } 
+};
+
+// History Modal
 window.openHistoryModal = () => {
     document.getElementById('historyModal').style.display = 'flex';
     document.getElementById('historyList').style.display = 'block';
@@ -202,7 +210,7 @@ window.openHistoryModal = () => {
         const data = appData.history[dateKey];
         const div = document.createElement('div'); div.className = 'history-item';
         const habitsDone = data.habits ? data.habits.filter(h => h.done).length : 0;
-        const moodIcon = data.mood !== null ? ["😀","🙂","😐","😔","😡","😨"][data.mood] : "😶";
+        const moodIcon = data.mood !== null && data.mood !== undefined ? ["😀","🙂","😐","😔","😡","😨"][data.mood] : "😶";
         div.innerHTML = `<div><div class="history-date">${data.label || dateKey}</div><div class="history-stats">${data.dateStr}</div></div><div style="text-align:right;"><div style="font-size:18px;">${moodIcon}</div><div style="font-size:11px; font-weight:bold;">${habitsDone}/6 ✅</div></div>`;
         div.onclick = () => window.showHistoryDetail(data);
         list.appendChild(div);
@@ -213,19 +221,22 @@ window.showHistoryDetail = (data) => {
     document.getElementById('historyList').style.display = 'none'; document.getElementById('historyDetail').style.display = 'block';
     document.getElementById('detailDate').innerText = `${data.label} (${data.dateStr})`;
     
+    // Habits
     const habitsDiv = document.getElementById('detailHabits'); habitsDiv.innerHTML = '';
     if(data.habits) data.habits.forEach((h, i) => { const div = document.createElement('div'); div.className = `history-habit-readonly ${h.done?'done':''}`; div.setAttribute('data-color', i); div.innerHTML = h.icon; habitsDiv.appendChild(div); });
     
-    // Task History
+    // Tasks (Fix)
     const tasksDiv = document.getElementById('detailTasks'); tasksDiv.innerHTML = '';
     if(data.tasks && data.tasks.length > 0) data.tasks.forEach(t => { const item = document.createElement('div'); item.className = 'history-task-item'; item.innerHTML = `<div class="history-task-icon">${t.done ? '✅' : '⬜'}</div><div class="history-task-text ${t.done ? 'done' : ''}">${t.name}</div>`; tasksDiv.appendChild(item); }); else tasksDiv.innerHTML = '<span style="color:#999; font-size:12px;">Không có dữ liệu nhiệm vụ</span>';
 
+    // Mood
     const moods = ["Tuyệt vời", "Vui vẻ", "Bình thường", "Buồn", "Tức giận", "Lo âu"]; const moodIcons = ["😀","🙂","😐","😔","😡","😨"];
     const m = data.mood; const moodContainer = document.getElementById('detailMood');
     if (m !== null && m !== undefined) moodContainer.innerHTML = `<div class="history-mood-container"><div class="history-mood-emoji">${moodIcons[m]}</div><div class="history-mood-label">${moods[m]}</div></div>`; else moodContainer.innerHTML = '<span style="color:#999; font-size:12px;">Không ghi nhận</span>';
 
     document.getElementById('detailJournal').innerText = data.journal || "Không có nhật ký.";
     
+    // Photos
     const pGrid = document.getElementById('detailPhotos'); pGrid.innerHTML = '';
     if(data.images && data.images.length > 0) data.images.forEach(src => { const img = document.createElement('img'); img.src = src; img.className = 'photo-thumbnail'; img.style.cursor = 'zoom-in'; img.onclick = () => window.openLightbox(src); pGrid.appendChild(img); }); else pGrid.innerHTML = '<span style="color:#999; font-size:12px;">Không có ảnh</span>';
 }
@@ -253,6 +264,30 @@ window.processImage = (input) => {
     } input.value = '';
 }
 window.removePhoto = (index) => { if(confirm("Xóa ảnh?")) { appData.journalImages.splice(index, 1); saveData(); renderUI(); } }
-window.startChallenge = () => { if(confirm("Bắt đầu thử thách từ NGÀY MAI?")) { const tmr = new Date(); tmr.setDate(tmr.getDate() + 1); tmr.setHours(0,0,0,0); appData.startDate = tmr.toISOString(); appData.streak = 1; saveData(); } };
-window.addTask = () => { const n = prompt("Nhiệm vụ mới:"); if(n) { appData.tasks.push({name:n, done:false}); saveData(); } };
-window.delTask = (i, e) => { e.stopPropagation(); if(confirm("Xóa nhiệm vụ?")) { appData.tasks.splice(i, 1); saveData(); } };
+window.addTask = () => { const n = prompt("Nhiệm vụ mới:"); if(n) { appData.tasks.push({name:n, done:false}); saveData(); renderUI(); } };
+window.delTask = (i, e) => { e.stopPropagation(); if(confirm("Xóa nhiệm vụ?")) { appData.tasks.splice(i, 1); saveData(); renderUI(); } };   
+
+// --- HÀM RESET DỮ LIỆU ---
+window.hardReset = () => {
+    if(confirm("CẢNH BÁO: Bạn có chắc muốn XÓA SẠCH toàn bộ dữ liệu? Hành động này không thể hoàn tác!")) {
+        // 1. Trả về dữ liệu gốc
+        appData = {
+            startDate: null, 
+            lastActive: new Date().toDateString(), 
+            streak: 0,
+            habits: [ 
+                {icon:"🕒", name:"Dậy sớm", done:false}, {icon:"❤️", name:"Sức khỏe", done:false}, 
+                {icon:"⚡", name:"Thể dục", done:false}, {icon:"💡", name:"Sáng tạo", done:false}, 
+                {icon:"📖", name:"Đọc sách", done:false}, {icon:"✏️", name:"Viết lách", done:false} 
+            ],
+            tasks: [{name:"Dậy sớm 5h", done:false}, {name:"Đọc 10 trang sách", done:false}],
+            mood: null, journal: "", journalImages: [],
+            history: {} 
+        };
+        
+        // 2. Lưu lên Firebase và vẽ lại giao diện
+        saveData();
+        renderUI();
+        alert("Đã xóa dữ liệu thành công!");
+    }
+}

@@ -1,5 +1,5 @@
 /* --- CSS NEUBRUTALISM --- */
-:root { --bg-color: #F8F9FA; --card-bg: #FFFFFF; --primary-yellow: #FFD54F; --border: #000; }
+:root { --bg-color: #F8F9FA; --card-bg: #FFFFFF; --primary-yellow: #e3b716; --border: #000; }
 body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); padding: 20px; margin: 0; color: #000; -webkit-tap-highlight-color: transparent; }
 .app-container { max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
 
@@ -46,20 +46,34 @@ body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); padding
 .mood-btn { aspect-ratio: 1/1; border: 2px solid var(--border); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 32px; background: white; cursor: pointer; }
 .mood-btn.selected { background: #FFEB3B; transform: scale(1.05); border-width: 3px; }
 
-/* Integrated Journal & Photo Box */
-.integrated-box { border: 2px solid #000; border-radius: 12px; padding: 10px; background: #fff; display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 220px; box-sizing: border-box; }
-.journal-area-clean { border: none; outline: none; width: 100%; flex-grow: 1; box-sizing: border-box; font-family: inherit; resize: none; font-size: 14px; line-height: 1.5; }
-.save-status { font-size: 10px; color: #888; text-align: right; font-style: italic; margin-top: -5px; margin-bottom: 5px;}
+/* --- NEW: INTEGRATED BOX (Hộp Nhật Ký + Ảnh) --- */
+.integrated-box { 
+    border: 2px solid #000; border-radius: 12px; padding: 10px; background: #fff; 
+    display: flex; flex-direction: column; justify-content: space-between;
+    gap: 10px; height: 100%; min-height: 200px; box-sizing: border-box; 
+}
+.journal-area-clean { 
+    border: none; outline: none; width: 100%; flex-grow: 1; 
+    box-sizing: border-box; font-family: inherit; resize: none; 
+    font-size: 14px; line-height: 1.5; 
+}
+.save-status { font-size: 10px; color: #888; text-align: right; font-style: italic; white-space: nowrap; margin-left: 10px; align-self: flex-end;}
 
+/* Photo Grid Small */
 .photo-grid { display: flex; gap: 8px; flex-wrap: wrap; }
-.photo-thumbnail-container { position: relative; width: 60px; height: 60px; }
+.photo-thumbnail-container { position: relative; width: 50px; height: 50px; }
 .photo-thumbnail { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #ccc; }
 .remove-photo-small { position: absolute; top: -5px; right: -5px; background: red; color: white; width: 16px; height: 16px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 10px; }
 
-.add-photo-square { width: 60px; height: 60px; border: 2px dashed #ccc; border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #999; transition: 0.2s; font-size: 20px; }
+/* Add Photo Button (Square) */
+.add-photo-square { 
+    width: 50px; height: 50px; border: 2px dashed #ccc; border-radius: 8px; 
+    display: flex; justify-content: center; align-items: center; 
+    cursor: pointer; color: #999; transition: 0.2s; font-size: 20px; 
+}
 .add-photo-square:hover { background: #f0f0f0; border-color: #999; }
 
-/* Modal History & Design Fixes */
+/* Modal History Spacing Fix */
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20000; justify-content: center; align-items: center; }
 .modal-content { background: #F8F9FA; width: 90%; max-width: 400px; max-height: 80%; border-radius: 20px; border: 2px solid #000; padding: 20px; overflow-y: auto; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
 .close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; font-weight: bold; cursor: pointer; color: #666; }
@@ -69,9 +83,8 @@ body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); padding
 .history-date { font-weight: bold; font-size: 14px; }
 .history-stats { font-size: 12px; color: #666; }
 
-/* History Detail Sections */
 .history-section-title { font-size: 12px; font-weight: bold; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-.history-section-block { margin-bottom: 25px; }
+.history-section-block { margin-bottom: 25px; } /* ĐÃ TĂNG KHOẢNG CÁCH */
 
 .history-habits-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
 .history-habit-readonly { aspect-ratio: 1/1; border: 1px solid #000; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 16px; background: #eee; opacity: 0.5; }
@@ -82,7 +95,6 @@ body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); padding
 .history-mood-emoji { font-size: 40px; line-height: 1.2; margin-bottom: 5px; }
 .history-mood-label { font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; }
 
-/* History Tasks */
 .history-task-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; }
 .history-task-icon { font-size: 14px; }
 .history-task-text { color: #333; }
