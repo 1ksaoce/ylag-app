@@ -8,11 +8,6 @@
 </head>
 <body>
 
-<nav style="background:#000; color:#fff; padding:10px 20px; display:flex; justify-content:center; gap:20px;">
-    <a href="index.html" style="color:#fff; text-decoration:none; font-weight:bold;">🏠 Home</a>
-    <a href="about.html" style="color:#fff; text-decoration:none; font-weight:bold;">ℹ️ About</a>
-</nav>
-
 <div id="loading">
     <div>⏳</div>
     <div>Đang tải dữ liệu...</div>
@@ -21,24 +16,27 @@
 <div class="app-container">
     <div class="header">
         <div style="display:flex; gap:10px; align-items:center;">
-            <div style="width:45px; height:45px; background:#000; color:#fff; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:20px;">🥷</div>
+            <div style="width:45px; height:45px; background:#0e0c00; color:#fff; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:20px;">🐜</div>
             <div>
-                <div style="font-weight:bold;">YLAG Ghost</div>
+                <div style="font-weight:bold;">Control Habits</div>
                 <div style="font-size:11px; color:#666;" id="currentDateStr">Loading...</div>
             </div>
         </div>
         <div style="display:flex; gap:10px;">
-            <button class="history-btn" onclick="openHistoryModal()">📅 Lịch sử</button>
+           
             <div style="font-weight:bold; border:2px solid #000; padding:5px 12px; border-radius:10px; background:white;">
                 🔥 <span id="streakDisplay">0</span>
             </div>
+            <button class="history-btn" onclick="openHistoryModal()">📅 Lịch sử</button>
+            <button class="history-btn" onclick="openSettingsModal()">⚙️</button>
+            <button class="history-btn" onclick="openAboutModal()">ℹ️</button>
         </div>
     </div>
 
     <div class="challenge-info" id="challengeBox">
         <div style="display:flex; justify-content:space-between; align-items:flex-end;">
             <div style="text-align:left;">
-                <div style="font-size:10px; opacity:0.8; letter-spacing: 1px;">THỬ THÁCH 90 NGÀY</div>
+                <div style="font-size:15px; font-weight:bold; opacity:1; letter-spacing: 1px;">THỬ THÁCH 90 NGÀY</div>
                 <div style="font-size:26px; font-weight:bold; color:var(--primary-yellow);" id="dayCounter">Loading...</div>
             </div>
             <div style="font-size:14px; font-weight:bold;" id="percentDisplay">0%</div>
@@ -54,6 +52,17 @@
     <div class="card">
         <div class="section-title">6 Thói Quen Cốt Lõi</div>
         <div class="habit-grid" id="habitContainer"></div>
+        
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <div class="time-box">
+                <label>🌙 Giờ ngủ</label>
+                <input type="time" id="sleepInput" onchange="saveTimeLog()">
+            </div>
+            <div class="time-box">
+                <label>☀️ Thức dậy</label>
+                <input type="time" id="wakeInput" onchange="saveTimeLog()">
+            </div>
+        </div>
         
         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
         
@@ -84,9 +93,7 @@
         </div>
     </div>
     
-    <button class="test-btn" onclick="simulateNewDay()">⏩ Giả lập Qua Ngày Mới (Test)</button>
-    <div style="text-align:center; font-size:10px; color:gray; margin-top:5px;">(Bấm để tăng bộ đếm ngày và lưu Lịch sử)</div>
-</div>
+    </div>
 
 <div id="historyModal" class="modal">
     <div class="modal-content">
@@ -126,11 +133,64 @@
     </div>
 </div>
 
+<div id="aboutModal" class="modal">
+    <div class="modal-content" style="text-align: center;">
+        <span class="close-modal" onclick="closeAboutModal()">×</span>
+        
+        <div style="font-size: 40px; margin-bottom: 10px;">🐜</div>
+        <h2 style="margin-top: 0; text-transform: uppercase;">DucNguyen's discipline </h2>
+        <p style="color: #666; font-size: 12px; font-weight: bold;">Phiên bản: Verson 1.15</p>
+        
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+        
+        <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+            <p><strong>Mục tiêu:</strong> 90 ngày tập trung để kỷ luật hơn của Đình Đức.</p>
+            <p><strong>Quy tắc:</strong></p>
+            <ul style="padding-left: 20px; margin: 5px 0;">
+                <li>Hoàn thành 6 thói quen cốt lõi.</li>
+                <li>Ghi lại nhật ký và cảm xúc mỗi ngày.</li>
+                <li>Không khoe khoang, âm thầm thực hiện.</li>
+            </ul>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+        <p style="font-size: 12px; color: #888;">Powered by Firebase & GitHub</p>
+    </div>
+</div>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeSettingsModal()">×</span>
+        <h2 style="margin-top:0;">Cài đặt</h2>
+        
+        <div style="display:flex; flex-direction:column; gap:15px; margin-top:20px;">
+            
+            <div>
+                <div style="font-weight:bold; margin-bottom:5px;">🛠️ Công cụ Test</div>
+                <button onclick="simulateNewDay()" style="width:100%; padding:10px; background:#e3f2fd; color:#1565c0; border:1px solid #1565c0; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    ⏩ Giả lập Qua ngày mới
+                </button>
+                <div style="font-size:11px; color:#666; margin-top:3px;">Dùng để kiểm tra tính năng lưu lịch sử & streak.</div>
+            </div>
+
+            <hr style="width:100%; border:0; border-top:1px solid #eee;">
+
+            <div>
+                <div style="font-weight:bold; margin-bottom:5px; color:red;">⚠️ Vùng nguy hiểm</div>
+                <button onclick="hardReset()" style="width:100%; padding:10px; background:#ffebee; color:red; border:1px solid red; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    ☠️ Reset toàn bộ dữ liệu
+                </button>
+                <div style="font-size:11px; color:#666; margin-top:3px;">Xóa sạch mọi thứ và quay về ngày 1. Không thể hoàn tác.</div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <div id="lightbox" class="lightbox" onclick="closeLightbox()">
     <div class="lightbox-close">×</div>
     <img id="lightboxImg" src="" onclick="event.stopPropagation()">
 </div>
-<button onclick="hardReset()" style="background:none; border:none; text-decoration:underline; color:red; width:100%; margin-top:10px; cursor:pointer; font-size:11px;">⚠️ Xóa toàn bộ dữ liệu (Reset)</button>
 
 <script type="module" src="app.js"></script>
 

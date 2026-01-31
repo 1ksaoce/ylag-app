@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// --- CẤU HÌNH ---
+// --- CẤU HÌNH FIREBASE ---
 const firebaseConfig = {
     apiKey: "AIzaSyA59ex81_KmXzpJ5lCeVN0bEC_El3xREy8",
     authDomain: "ylag-ghost.firebaseapp.com",
@@ -14,8 +14,9 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const DOC_ID = "user_profile_v15_final_split_files"; 
+const DOC_ID = "YLAG_First_Version"; 
 
+// --- DỮ LIỆU GỐC ---
 let appData = {
     startDate: null, lastActive: new Date().toDateString(), streak: 0,
     habits: [ 
@@ -24,12 +25,17 @@ let appData = {
         {icon:"📖", name:"Đọc sách", done:false}, {icon:"✏️", name:"Viết lách", done:false} 
     ],
     tasks: [{name:"Dậy sớm 5h", done:false}, {name:"Đọc 10 trang sách", done:false}],
+    
+    // Thêm giờ ngủ/dậy
+    sleepTime: "", wakeTime: "",
+    
     mood: null, journal: "", journalImages: [],
     history: {} 
 };
 
 const docRef = doc(db, "ylag_db", DOC_ID);
 
+// --- KẾT NỐI VÀ TẢI DỮ LIỆU ---
 onSnapshot(docRef, (snap) => {
     document.getElementById('loading').style.display = 'none';
     if (snap.exists()) {
@@ -47,7 +53,7 @@ onSnapshot(docRef, (snap) => {
 
 async function saveData() { await setDoc(docRef, appData); }
 
-// --- LOGIC NGÀY THÁNG & LỊCH SỬ ---
+// --- LOGIC NGÀY THÁNG ---
 function checkDay() {
     const today = new Date().toDateString();
     if (appData.lastActive !== today) {
@@ -67,13 +73,14 @@ function archiveToday(dateKey) {
     }
     if (!appData.history) appData.history = {};
     
-    // LƯU CẢ TASKS VÀO LỊCH SỬ
     appData.history[dateKey] = {
         label: dayLabel, dateStr: dateKey,
         habits: JSON.parse(JSON.stringify(appData.habits)),
-        tasks: JSON.parse(JSON.stringify(appData.tasks)), 
+        tasks: JSON.parse(JSON.stringify(appData.tasks)),
         mood: appData.mood, journal: appData.journal,
-        images: JSON.parse(JSON.stringify(appData.journalImages))
+        images: JSON.parse(JSON.stringify(appData.journalImages)),
+        sleepTime: appData.sleepTime || "---",
+        wakeTime: appData.wakeTime || "---"
     };
 }
 
@@ -81,10 +88,11 @@ function resetForNewDay(newDateStr) {
     appData.habits.forEach(h => h.done = false);
     appData.tasks.forEach(t => t.done = false);
     appData.mood = null; appData.journal = ""; appData.journalImages = [];
+    appData.sleepTime = ""; appData.wakeTime = "";
     appData.lastActive = newDateStr;
 }
 
-// --- RENDER UI ---
+// --- VẼ GIAO DIỆN (RENDER) ---
 function renderUI() {
     // 1. Day Counter
     if (!appData.startDate) {
@@ -117,7 +125,11 @@ function renderUI() {
         hC.appendChild(div);
     });
 
-    // 3. Tasks
+    // 3. Time Inputs
+    document.getElementById('sleepInput').value = appData.sleepTime || "";
+    document.getElementById('wakeInput').value = appData.wakeTime || "";
+
+    // 4. Tasks
     const tC = document.getElementById('taskContainer'); tC.innerHTML = '';
     appData.tasks.forEach((t, i) => {
         const b = document.createElement('div');
@@ -127,7 +139,7 @@ function renderUI() {
         tC.appendChild(b);
     });
 
-    // 4. Mood
+    // 5. Mood
     const mC = document.getElementById('moodContainer'); mC.innerHTML = '';
     const moodNames = ["Tuyệt vời", "Vui vẻ", "Bình thường", "Buồn", "Tức giận", "Lo âu"];
     ["😀","🙂","😐","😔","😡","😨"].forEach((e, i) => {
@@ -138,7 +150,7 @@ function renderUI() {
         mC.appendChild(div);
     });
 
-    // 5. Journal & Photos (Integrated)
+    // 6. Journal & Photos
     const journalBox = document.getElementById('journalInput');
     if (document.activeElement !== journalBox) { journalBox.value = appData.journal; }
 
@@ -160,9 +172,12 @@ function renderUI() {
     }
 }
 
-// --- GLOBAL FUNCTIONS ---
+// --- GLOBAL FUNCTIONS (GẮN VÀO WINDOW ĐỂ HTML GỌI ĐƯỢC) ---
+
+// 1. Logic cơ bản
 window.toggleHabit = (index) => { appData.habits[index].done = !appData.habits[index].done; saveData(); renderUI(); };
 window.selectMood = (index) => { appData.mood = index; saveData(); renderUI(); };
+window.saveTimeLog = () => { appData.sleepTime = document.getElementById('sleepInput').value; appData.wakeTime = document.getElementById('wakeInput').value; saveData(); };
 
 let saveTimeout;
 window.autoSaveJournal = () => {
@@ -173,20 +188,40 @@ window.autoSaveJournal = () => {
     saveTimeout = setTimeout(async () => { await saveData(); status.innerText = "Đã lưu ✓"; status.style.color = "green"; setTimeout(() => { status.innerText = ""; }, 2000); }, 1500);
 }
 
+// 2. Logic Test & Reset
 window.simulateNewDay = () => {
     if(confirm("Xác nhận: Lưu dữ liệu hôm nay vào Lịch sử và chuyển sang ngày mai?")) {
         const fakeDateKey = new Date().toLocaleString('vi-VN'); 
         archiveToday(fakeDateKey + " (Simulated)");
-        
-        // Mẹo: Lùi ngày bắt đầu để tăng bộ đếm
         if (appData.startDate) {
-            const s = new Date(appData.startDate);
-            s.setDate(s.getDate() - 1);
+            const s = new Date(appData.startDate); s.setDate(s.getDate() - 1);
             appData.startDate = s.toISOString();
         }
         resetForNewDay(new Date().toDateString());
         saveData(); renderUI();
-        alert("Đã qua ngày mới! Kiểm tra Lịch sử và Bộ đếm ngày.");
+        alert("Đã qua ngày mới! Kiểm tra Lịch sử.");
+    }
+}
+
+window.hardReset = () => {
+    if(confirm("CẢNH BÁO: Hành động này sẽ XÓA SẠCH toàn bộ dữ liệu về 0. Bạn có chắc chắn không?")) {
+        appData = {
+            startDate: null, lastActive: new Date().toDateString(), streak: 0,
+            habits: [ 
+                {icon:"🕒", name:"Dậy sớm", done:false}, {icon:"❤️", name:"Sức khỏe", done:false}, 
+                {icon:"⚡", name:"Thể dục", done:false}, {icon:"💡", name:"Sáng tạo", done:false}, 
+                {icon:"📖", name:"Đọc sách", done:false}, {icon:"✏️", name:"Viết lách", done:false} 
+            ],
+            tasks: [{name:"Dậy sớm 5h", done:false}, {name:"Đọc 10 trang sách", done:false}],
+            sleepTime: "", wakeTime: "",
+            mood: null, journal: "", journalImages: [],
+            history: {} 
+        };
+        saveData();
+        renderUI();
+        closeSettingsModal();
+        closeAboutModal();
+        alert("Đã Reset thành công!");
     }
 }
 
@@ -199,7 +234,13 @@ window.startChallenge = () => {
     } 
 };
 
-// History Modal
+// 3. Logic Modals (Cài đặt, About, History)
+window.openSettingsModal = () => { document.getElementById('settingsModal').style.display = 'flex'; }
+window.closeSettingsModal = () => { document.getElementById('settingsModal').style.display = 'none'; }
+
+window.openAboutModal = () => { document.getElementById('aboutModal').style.display = 'flex'; }
+window.closeAboutModal = () => { document.getElementById('aboutModal').style.display = 'none'; }
+
 window.openHistoryModal = () => {
     document.getElementById('historyModal').style.display = 'flex';
     document.getElementById('historyList').style.display = 'block';
@@ -210,12 +251,14 @@ window.openHistoryModal = () => {
         const data = appData.history[dateKey];
         const div = document.createElement('div'); div.className = 'history-item';
         const habitsDone = data.habits ? data.habits.filter(h => h.done).length : 0;
-        const moodIcon = data.mood !== null && data.mood !== undefined ? ["😀","🙂","😐","😔","😡","😨"][data.mood] : "😶";
+        const moodIcon = data.mood !== null ? ["😀","🙂","😐","😔","😡","😨"][data.mood] : "😶";
         div.innerHTML = `<div><div class="history-date">${data.label || dateKey}</div><div class="history-stats">${data.dateStr}</div></div><div style="text-align:right;"><div style="font-size:18px;">${moodIcon}</div><div style="font-size:11px; font-weight:bold;">${habitsDone}/6 ✅</div></div>`;
         div.onclick = () => window.showHistoryDetail(data);
         list.appendChild(div);
     });
 }
+window.closeHistoryModal = () => { document.getElementById('historyModal').style.display = 'none'; }
+window.backToHistoryList = () => { document.getElementById('historyList').style.display = 'block'; document.getElementById('historyDetail').style.display = 'none'; }
 
 window.showHistoryDetail = (data) => {
     document.getElementById('historyList').style.display = 'none'; document.getElementById('historyDetail').style.display = 'block';
@@ -225,7 +268,16 @@ window.showHistoryDetail = (data) => {
     const habitsDiv = document.getElementById('detailHabits'); habitsDiv.innerHTML = '';
     if(data.habits) data.habits.forEach((h, i) => { const div = document.createElement('div'); div.className = `history-habit-readonly ${h.done?'done':''}`; div.setAttribute('data-color', i); div.innerHTML = h.icon; habitsDiv.appendChild(div); });
     
-    // Tasks (Fix)
+    // THÊM GIỜ NGỦ TO & NGANG
+    const timeInfo = document.createElement('div');
+    timeInfo.style.gridColumn = "1 / -1"; 
+    timeInfo.style.marginTop = "15px"; timeInfo.style.paddingTop = "10px"; timeInfo.style.borderTop = "1px dashed #ccc";
+    timeInfo.style.fontSize = "16px"; timeInfo.style.fontWeight = "bold"; timeInfo.style.color = "#000";
+    timeInfo.style.display = "flex"; timeInfo.style.justifyContent = "space-around"; timeInfo.style.alignItems = "center";
+    timeInfo.innerHTML = `<span style="color:#555">🌙 Ngủ: <span style="color:#000; font-size:18px">${data.sleepTime || '--:--'}</span></span><span style="color:#555">☀️ Dậy: <span style="color:#000; font-size:18px">${data.wakeTime || '--:--'}</span></span>`;
+    habitsDiv.appendChild(timeInfo);
+
+    // Tasks
     const tasksDiv = document.getElementById('detailTasks'); tasksDiv.innerHTML = '';
     if(data.tasks && data.tasks.length > 0) data.tasks.forEach(t => { const item = document.createElement('div'); item.className = 'history-task-item'; item.innerHTML = `<div class="history-task-icon">${t.done ? '✅' : '⬜'}</div><div class="history-task-text ${t.done ? 'done' : ''}">${t.name}</div>`; tasksDiv.appendChild(item); }); else tasksDiv.innerHTML = '<span style="color:#999; font-size:12px;">Không có dữ liệu nhiệm vụ</span>';
 
@@ -236,16 +288,11 @@ window.showHistoryDetail = (data) => {
 
     document.getElementById('detailJournal').innerText = data.journal || "Không có nhật ký.";
     
-    // Photos
     const pGrid = document.getElementById('detailPhotos'); pGrid.innerHTML = '';
     if(data.images && data.images.length > 0) data.images.forEach(src => { const img = document.createElement('img'); img.src = src; img.className = 'photo-thumbnail'; img.style.cursor = 'zoom-in'; img.onclick = () => window.openLightbox(src); pGrid.appendChild(img); }); else pGrid.innerHTML = '<span style="color:#999; font-size:12px;">Không có ảnh</span>';
 }
 
-window.backToHistoryList = () => { document.getElementById('historyList').style.display = 'block'; document.getElementById('historyDetail').style.display = 'none'; }
-window.closeHistoryModal = () => { document.getElementById('historyModal').style.display = 'none'; }
-window.openLightbox = (src) => { const lb = document.getElementById('lightbox'); document.getElementById('lightboxImg').src = src; lb.style.display = 'flex'; }
-window.closeLightbox = () => { document.getElementById('lightbox').style.display = 'none'; }
-
+// 4. Photos & Task Utils
 window.processImage = (input) => {
     if (appData.journalImages.length >= 3) { alert("Tối đa 3 ảnh!"); return; }
     if (input.files && input.files[0]) {
@@ -265,29 +312,6 @@ window.processImage = (input) => {
 }
 window.removePhoto = (index) => { if(confirm("Xóa ảnh?")) { appData.journalImages.splice(index, 1); saveData(); renderUI(); } }
 window.addTask = () => { const n = prompt("Nhiệm vụ mới:"); if(n) { appData.tasks.push({name:n, done:false}); saveData(); renderUI(); } };
-window.delTask = (i, e) => { e.stopPropagation(); if(confirm("Xóa nhiệm vụ?")) { appData.tasks.splice(i, 1); saveData(); renderUI(); } };   
-
-// --- HÀM RESET DỮ LIỆU ---
-window.hardReset = () => {
-    if(confirm("CẢNH BÁO: Bạn có chắc muốn XÓA SẠCH toàn bộ dữ liệu? Hành động này không thể hoàn tác!")) {
-        // 1. Trả về dữ liệu gốc
-        appData = {
-            startDate: null, 
-            lastActive: new Date().toDateString(), 
-            streak: 0,
-            habits: [ 
-                {icon:"🕒", name:"Dậy sớm", done:false}, {icon:"❤️", name:"Sức khỏe", done:false}, 
-                {icon:"⚡", name:"Thể dục", done:false}, {icon:"💡", name:"Sáng tạo", done:false}, 
-                {icon:"📖", name:"Đọc sách", done:false}, {icon:"✏️", name:"Viết lách", done:false} 
-            ],
-            tasks: [{name:"Dậy sớm 5h", done:false}, {name:"Đọc 10 trang sách", done:false}],
-            mood: null, journal: "", journalImages: [],
-            history: {} 
-        };
-        
-        // 2. Lưu lên Firebase và vẽ lại giao diện
-        saveData();
-        renderUI();
-        alert("Đã xóa dữ liệu thành công!");
-    }
-}
+window.delTask = (i, e) => { e.stopPropagation(); if(confirm("Xóa nhiệm vụ?")) { appData.tasks.splice(i, 1); saveData(); renderUI(); } };
+window.openLightbox = (src) => { const lb = document.getElementById('lightbox'); document.getElementById('lightboxImg').src = src; lb.style.display = 'flex'; }
+window.closeLightbox = () => { document.getElementById('lightbox').style.display = 'none'; }
