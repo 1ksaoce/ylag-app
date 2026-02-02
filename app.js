@@ -21,7 +21,7 @@ let appData = {
     startDate: null, lastActive: new Date().toDateString(), streak: 0,
     habits: [ 
         {icon:"🕒", name:"Dậy sớm", done:false}, {icon:"❤️", name:"Sức khỏe", done:false}, 
-        {icon:"⚡", name:"Thể dục", done:false}, {icon:"💡", name:"Sáng tạo", done:false}, 
+        {icon:"⚡", name:"Thể dục", done:false}, {icon:"📚", name:"Học bài", done:false}, 
         {icon:"📖", name:"Đọc sách", done:false}, {icon:"✏️", name:"Viết lách", done:false} 
     ],
     tasks: [{name:"Dậy sớm 5h", done:false}, {name:"Đọc 10 trang sách", done:false}],
@@ -209,7 +209,7 @@ window.hardReset = () => {
             startDate: null, lastActive: new Date().toDateString(), streak: 0,
             habits: [ 
                 {icon:"🕒", name:"Dậy sớm", done:false}, {icon:"❤️", name:"Sức khỏe", done:false}, 
-                {icon:"⚡", name:"Thể dục", done:false}, {icon:"💡", name:"Sáng tạo", done:false}, 
+                {icon:"⚡", name:"Thể dục", done:false}, {icon:"📚", name:"Học bài", done:false}, 
                 {icon:"📖", name:"Đọc sách", done:false}, {icon:"✏️", name:"Viết lách", done:false} 
             ],
             tasks: [{name:"Dậy sớm 5h", done:false}, {name:"Đọc 10 trang sách", done:false}],
@@ -309,6 +309,52 @@ window.processImage = (input) => {
         }
         reader.readAsDataURL(file);
     } input.value = '';
+}
+
+// --- XUẤT DỮ LIỆU RA CSV (CHO GOOGLE SHEETS) ---
+window.exportToCSV = () => {
+    // 1. Kiểm tra dữ liệu
+    if (!appData.history || Object.keys(appData.history).length === 0) {
+        alert("Chưa có dữ liệu lịch sử để xuất!");
+        return;
+    }
+
+    // 2. Tạo tiêu đề cột (Header)
+    // Lưu ý: \ufeff để Excel hiển thị đúng Tiếng Việt
+    let csvContent = "\ufeffNgày,Thứ tự ngày,Dậy sớm,Sức khỏe,Thể dục,Học bài,Đọc sách,Viết lách,Giờ Ngủ,Giờ Dậy,Mood,Nhật ký\n";
+
+    // 3. Duyệt qua từng ngày trong lịch sử
+    // Object.keys(history) lấy ra danh sách ngày lộn xộn, ta cần sort lại theo thời gian
+    const sortedDates = Object.keys(appData.history).sort((a, b) => new Date(a) - new Date(b));
+
+    sortedDates.forEach(dateKey => {
+        const h = appData.history[dateKey];
+        
+        // Xử lý thói quen (1 là xong, 0 là chưa)
+        const habitsStatus = h.habits.map(habit => habit.done ? "1" : "0").join(",");
+        
+        // Xử lý Mood (nếu không có thì để trống)
+        const moods = ["Tuyệt vời", "Vui vẻ", "Bình thường", "Buồn", "Tức giận", "Lo âu"];
+        const moodText = (h.mood !== null && h.mood !== undefined) ? moods[h.mood] : "";
+
+        // Xử lý Nhật ký (phải xóa dấu phẩy và xuống dòng trong nhật ký để không vỡ file CSV)
+        const cleanJournal = (h.journal || "").replace(/,/g, " ").replace(/\n/g, " ");
+
+        // Ghép thành 1 dòng
+        // Cấu trúc: Ngày, Label, 6 thói quen, Ngủ, Dậy, Mood, Nhật ký
+        let row = `${h.dateStr},${h.label},${habitsStatus},${h.sleepTime || ""},${h.wakeTime || ""},${moodText},"${cleanJournal}"`;
+        csvContent += row + "\n";
+    });
+
+    // 4. Tải file về
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `YLAG_Report_${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 window.removePhoto = (index) => { if(confirm("Xóa ảnh?")) { appData.journalImages.splice(index, 1); saveData(); renderUI(); } }
 window.addTask = () => { const n = prompt("Nhiệm vụ mới:"); if(n) { appData.tasks.push({name:n, done:false}); saveData(); renderUI(); } };
