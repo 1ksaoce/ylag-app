@@ -20,7 +20,7 @@ const DOC_ID = "YLAG_First_Version";
 let appData = {
     startDate: null, lastActive: new Date().toDateString(), streak: 0,
     habits: [ 
-        {icon:"🕒", name:"Dậy sớm", done:false}, {icon:"❤️", name:"Sức khỏe", done:false}, 
+        {icon:"🕒", name:"Dậy sớm", done:false}, {icon:"🍽️", name:"Ăn đủ 3 bữa", done:false}, 
         {icon:"⚡", name:"Thể dục", done:false}, {icon:"📚", name:"Học bài", done:false}, 
         {icon:"📖", name:"Đọc sách", done:false}, {icon:"✏️", name:"Viết lách", done:false} 
     ],
@@ -208,7 +208,7 @@ window.hardReset = () => {
         appData = {
             startDate: null, lastActive: new Date().toDateString(), streak: 0,
             habits: [ 
-                {icon:"🕒", name:"Dậy sớm", done:false}, {icon:"❤️", name:"Sức khỏe", done:false}, 
+                {icon:"🕒", name:"Dậy sớm", done:false}, {icon:"🍽️", name:"Ăn đủ 3 bữa", done:false}, 
                 {icon:"⚡", name:"Thể dục", done:false}, {icon:"📚", name:"Học bài", done:false}, 
                 {icon:"📖", name:"Đọc sách", done:false}, {icon:"✏️", name:"Viết lách", done:false} 
             ],
