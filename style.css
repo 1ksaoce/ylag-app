@@ -139,3 +139,35 @@ body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); padding
     padding: 0;
     cursor: pointer;
 }
+
+/* --- THÊM VÀO CUỐI FILE STYLE.CSS --- */
+
+/* Màu vàng cho thói quen khi đã hoàn thành */
+.habit-btn.active {
+    background-color: #FFD700 !important; /* Màu vàng đậm */
+    color: #000 !important; /* Chữ đen */
+    border: 2px solid #FFC107 !important;
+    transform: translateY(2px); /* Hiệu ứng lún xuống */
+    box-shadow: none !important;
+}
+
+/* Màu xanh cho Task khi hoàn thành */
+.task-btn.done {
+    background-color: #0d9418 !important;
+    text-decoration: line-through;
+    color: #121212;
+    border-color: #111611;
+}
+
+/* Sửa lại modal lịch sử cho giống cũ */
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+.history-item:hover {
+    background-color: #f9f9f9;
+}

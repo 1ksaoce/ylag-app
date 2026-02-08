@@ -148,7 +148,7 @@
         
         <div style="font-size: 40px; margin-bottom: 10px;">🐜</div>
         <h2 style="margin-top: 0; text-transform: uppercase;">DucNguyen's discipline </h2>
-        <p style="color: #666; font-size: 12px; font-weight: bold;">Phiên bản: Verson 1.15</p>
+        <p style="color: #666; font-size: 12px; font-weight: bold;">Phiên bản: Verson 2.0</p>
         
         <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
         
@@ -185,21 +185,36 @@
             <hr style="width:100%; border:0; border-top:1px solid #eee;">
 
             <div>
+                <div style="font-weight:bold; margin-bottom:5px;">📊 Dữ liệu & Báo cáo</div>
+                
+                <button onclick="printReport()" style="width:100%; padding:10px; margin-bottom:10px; background:#fce4ec; color:#c2185b; border:1px solid #c2185b; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    🖨️ Xem & In Báo cáo (Có ảnh)
+                </button>
+
+                <button onclick="exportToCSV()" style="width:100%; padding:10px; margin-bottom:10px; background:#e8f5e9; color:#2e7d32; border:1px solid #2e7d32; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    📥 Tải Excel (Link ảnh)
+                </button>
+
+                <button onclick="downloadBackup()" style="width:100%; padding:10px; margin-bottom:10px; background:#fff9c4; color:#f9a825; border:1px solid #f9a825; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    ⬇️ Tải file Backup (.json)
+                </button>
+
+                <div style="position:relative;">
+                    <button onclick="document.getElementById('backupInput').click()" style="width:100%; padding:10px; background:#fff3e0; color:#e65100; border:1px solid #e65100; border-radius:8px; font-weight:bold; cursor:pointer;">
+                        ⬆️ Khôi phục từ file
+                    </button>
+                    <input type="file" id="backupInput" style="display:none;" accept=".json" onchange="restoreBackup(this)">
+                </div>
+            </div>
+
+            <hr style="width:100%; border:0; border-top:1px solid #eee;">
+
+            <div>
                 <div style="font-weight:bold; margin-bottom:5px; color:red;">⚠️ Vùng nguy hiểm</div>
                 <button onclick="hardReset()" style="width:100%; padding:10px; background:#ffebee; color:red; border:1px solid red; border-radius:8px; font-weight:bold; cursor:pointer;">
                     ☠️ Reset toàn bộ dữ liệu
                 </button>
-                <div style="font-size:11px; color:#666; margin-top:3px;">Xóa sạch mọi thứ và quay về ngày 1. Không thể hoàn tác.</div>
             </div>
-
-            <div>
-                <div style="font-weight:bold; margin-bottom:5px;">📊 Dữ liệu</div>
-                <button onclick="exportToCSV()" style="width:100%; padding:10px; background:#e8f5e9; color:#2e7d32; border:1px solid #2e7d32; border-radius:8px; font-weight:bold; cursor:pointer;">
-                    📥 Tải file báo cáo (.csv)
-                </button>
-                <div style="font-size:11px; color:#666; margin-top:3px;">Mở được bằng Google Sheets hoặc Excel.</div>
-            </div>
-
 
         </div>
     </div>
@@ -210,7 +225,7 @@
     <img id="lightboxImg" src="" onclick="event.stopPropagation()">
 </div>
 
-<script type="module" src="app.js"></script>
+<script type="module" src="app_supabase.js"></script>
 
 </body>
 </html>
