@@ -9,7 +9,7 @@ const SUPABASE_KEY = "sb_publishable_CN1U4NNSA6Tbdic8Wtre0g_EtLlK6fN";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 // Giữ nguyên ID cũ để bạn không bị mất dữ liệu đang dùng
-const SAVE_ID = "YLAG_Version_V2.0_test"; 
+const SAVE_ID = "YLAG_Version_V2.0"; 
 
 // --- DỮ LIỆU GỐC ---
 let appData = {
