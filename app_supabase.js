@@ -9,7 +9,7 @@ const SUPABASE_KEY = "sb_publishable_CN1U4NNSA6Tbdic8Wtre0g_EtLlK6fN";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 // Giữ nguyên ID cũ để bạn không bị mất dữ liệu đang dùng
-const SAVE_ID = "YLAG_Version_V2.0"; 
+const SAVE_ID = "YLAG_Version_V2.0_test"; 
 
 // --- DỮ LIỆU GỐC ---
 let appData = {
@@ -374,10 +374,31 @@ window.simulateNewDay = () => {
         saveData(); renderUI(); closeSettingsModal();
     }
 }
+// 👇 BẮT BUỘC PHẢI CÓ DÒNG NÀY ĐỂ KHÔNG BỊ LỖI KHI GÕ 👇
+let saveTimeout; 
+
 window.autoSaveJournal = () => {
-    const status = document.getElementById('saveStatus'); appData.journal = document.getElementById('journalInput').value;
-    status.innerText = "Lưu..."; if (saveTimeout) clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(async () => { await saveData(); status.innerText = ""; }, 1500);
+    const status = document.getElementById('saveStatus'); 
+    appData.journal = document.getElementById('journalInput').value;
+    
+    // Hiển thị trạng thái đang lưu
+    status.innerText = "Đang lưu..."; 
+    status.style.color = "#0056b3"; // Màu xanh lam
+
+    // Reset lại đồng hồ đếm ngược mỗi khi bạn gõ phím mới
+    if (saveTimeout) clearTimeout(saveTimeout);
+    
+    // Đợi bạn ngừng gõ 1.5 giây thì mới lưu để đỡ tốn mạng
+    saveTimeout = setTimeout(async () => { 
+        await saveData(); 
+        status.innerText = "✅ Đã lưu"; 
+        status.style.color = "green"; 
+        
+        // Tự động xóa dòng chữ thông báo sau 2 giây
+        setTimeout(() => { 
+            if(status.innerText === "✅ Đã lưu") status.innerText = ""; 
+        }, 2000); 
+    }, 1500);
 }
 window.addTask = () => { const n = prompt("Nhiệm vụ mới:"); if(n) { appData.tasks.push({name:n, done:false}); saveData(); renderUI(); } };
 window.delTask = (i, e) => { e.stopPropagation(); if(confirm("Xóa?")) { appData.tasks.splice(i, 1); saveData(); renderUI(); } };
